@@ -1,29 +1,26 @@
-const express = require('express');
-const cors = require('cors');
+const express = require("express");
 
 const app = express();
-app.use(cors());
+
+// import your IBM function file
+const musicFunction = require("./main");
+
+// root endpoint
+app.get("/", (req, res) => {
+
+    const response = musicFunction.main({});
+
+    res.status(response.statusCode)
+       .set(response.headers)
+       .json(response.body);
+});
+
+// health check (Cloud Run best practice)
+app.get("/health", (req, res) => {
+    res.send("OK");
+});
 
 const PORT = process.env.PORT || 8080;
-
-app.get("/songs", (req, res) => {
-    const songs = [
-        {
-            name: "Song A - Happy Melody",
-            url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
-        },
-        {
-            name: "Song B - Summer Vibes",
-            url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
-        },
-        {
-            name: "Song C - Night Dreams",
-            url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
-        }
-    ];
-
-    res.json({ songs });
-});
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
